@@ -9,8 +9,8 @@ With mobilepoly, you can:
 - Keep the game moving with quick and easy transactions
 
 <p align="center">
-  <video src="https://user-images.githubusercontent.com/71894332/214652171-af0e21cc-8fdd-45c4-85e9-a700c42f0583.mp4"  controls>
-  <video src="https://user-images.githubusercontent.com/71894332/214652703-61d19fde-356c-4967-9f9e-ce3ce15aa652.mp4"  controls>
+  <video src="https://user-images.githubusercontent.com/71894332/214652171-af0e21cc-8fdd-45c4-85e9-a700c42f0583.mp4"  controls> </video>
+  <video src="https://user-images.githubusercontent.com/71894332/214652703-61d19fde-356c-4967-9f9e-ce3ce15aa652.mp4"  controls> </video>
 </p>
 
 ## How it works
