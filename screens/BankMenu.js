@@ -3,17 +3,17 @@ import React, {useState, useEffect, useRef} from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NfcManager,{ NfcTech } from 'react-native-nfc-manager';
 import { Audio } from 'expo-av';
-
-
 import PlayerSelector from '../components/PlayerSelector';
 import BottomPopUp from '../components/BottomPopUp';
 import TransactionPopUp from '../components/TransactionPopUp';
 import { MaterialIcons, FontAwesome5,Ionicons  } from '@expo/vector-icons';
 import bgMono from '../assets/bgMono.png';
+import { useTranslation } from 'react-i18next';
 
 NfcManager.start();
 
 export default function BankMenu({navigation}) {
+  const { t } = useTranslation();
   const [show, setShow] = useState(false);
   const [pay, setPay] = useState(false);
   const [pay2, setPay2] = useState(false);
@@ -174,32 +174,38 @@ export default function BankMenu({navigation}) {
 
         <Pressable style={styles.backButton} onPress={() => {navigation.navigate("Home")}}>
           <Ionicons name="md-chevron-back-outline" size={24} color="white" />
-          <Text style={{color:"white", fontSize : 20}}> Volver al menu </Text>
+          <Text style={{color:"white", fontSize : 20}}>{t('common.home')}</Text>
         </Pressable>
         <PlayerSelector show={show} setShow={setShow} pay={pay} setPlayer={setSelectedPlayer} players={players}/>
         <BottomPopUp show={scanning} setShow={setScanning}/>
         <TransactionPopUp show={operationStatus} setShow={setOperationStatus} bankruptcy={bankruptcy} name={name} value={money.current} pay={pay2} error={error}/>
         <View style={styles.paymentsContainer}>
-          <Text style={{fontSize: 20, fontWeight: 'bold', color: "white", marginVertical: 10}}>Ingrese el monto:</Text>
-          <TextInput  style={styles.input}  placeholder="Monto" keyboardType='numeric' onChangeText={text => changeText(text)} value={0}/>
-          <Text style={{fontSize: 20, fontWeight: 'bold', color: "white", marginVertical: 10}}>Seleccione la transaccion</Text>
+          <Text style={{fontSize: 20, fontWeight: 'bold', color: "white", marginVertical: 10}}>
+            {t('bank.moneyTo')}
+          </Text>
+          <TextInput style={styles.input} placeholder={t('bank.placeholder')} keyboardType='numeric' onChangeText={text => changeText(text)} value={0}/>
+          <Text style={{fontSize: 20, fontWeight: 'bold', color: "white", marginVertical: 10}}>
+            {t('bank.transfer')}
+          </Text>
 
           <View style={styles.buttonsContainer}>
             <Pressable style={styles.buttonPayment} onPress={handlePay}>
               <MaterialIcons name="payment" size={24} color="white" />
-              <Text style={styles.buttonText}>Pagar</Text>
+              <Text style={styles.buttonText}>{t('bank.pay')}</Text>
             </Pressable>
             <Pressable style={[styles.buttonPayment, {backgroundColor : "#00BF5F"}]} onPress={handleDeposit}>
               <MaterialIcons name="local-atm" size={24} color="white" />
-              <Text style={styles.buttonText}>Cobrar</Text>
+              <Text style={styles.buttonText}>{t('bank.receive')}</Text>
             </Pressable>
           </View>
         </View>
         <View style={styles.balanceContainer}>
-          <Text style={{fontSize: 20, fontWeight: 'bold', color: "white",}}>No sabe cuanta plata le queda?</Text>
+          <Text style={{fontSize: 20, fontWeight: 'bold', color: "white",}}>
+            {t('bank.currentBalance')}
+          </Text>
           <Pressable style={styles.button} onPress={()=>{navigation.navigate('Balance', {paramKey : players})}}>
             <FontAwesome5 name="piggy-bank" size={24} color="white" />
-            <Text style={styles.buttonText}>Consultar saldo</Text>
+            <Text style={styles.buttonText}>{t('common.balance')}</Text>
           </Pressable>
         </View>
       </View>
@@ -234,7 +240,7 @@ const styles = StyleSheet.create({
 
   input : {
     backgroundColor: 'white',
-    width : 100,
+    width : 200,
     height : 50,
     borderRadius : 10,
     padding : 10,

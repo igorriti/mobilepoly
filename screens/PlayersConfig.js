@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {  FlatList, Pressable, StyleSheet, Text, TextInput, View, Modal, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Feather, AntDesign, Ionicons } from '@expo/vector-icons'; 
 import bgMono from '../assets/bgMono.png';
 import PlayerAdder from '../components/PlayerAdder';
-
+import { useTranslation } from 'react-i18next';
 
 export default function PlayersConfig({navigation}) {
+    const { t } = useTranslation();
     const [players, setPlayers] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -49,16 +49,16 @@ export default function PlayersConfig({navigation}) {
             <View style={styles.container}>
                 <Pressable style={styles.backButton} onPress={() => {navigation.navigate("Home")}}>
                     <Ionicons name="md-chevron-back-outline" size={24} color="white" />
-                    <Text style={{color:"white", fontSize : 20}}> Volver al menu </Text>
+                    <Text style={{color:"white", fontSize : 20}}>{t('common.home')}</Text>
                 </Pressable>
                 <ImageBackground  source={bgMono} resizeMode="cover" style={styles.backgroundImage}/>
-                <Text style={styles.title}>Lista de jugadores</Text>
+                <Text style={styles.title}>{t('players.title')}</Text>
                 <FlatList
                     style={styles.flatlist}
                     data={players}
                     renderItem={({ item,index }) => (
                         <View style={styles.flatListItem}>
-                        <Text style={styles.flatListItemText}>Jugador: {item.name}</Text>
+                        <Text style={styles.flatListItemText}>{t('players.playerName')}: {item.name}</Text>
 
                         <Pressable style={styles.editButton} onPress={()=>{
                             setIndex(index);
@@ -73,7 +73,7 @@ export default function PlayersConfig({navigation}) {
                 {players.length < 6 && (
                     <Pressable style={styles.button} onPress={handleAddPlayer}>
                         <AntDesign name="adduser" size={24} color="white" />
-                        <Text style={styles.buttonText}>Agregar jugador</Text>
+                        <Text style={styles.buttonText}>{t('players.addPlayer')}</Text>
                     </Pressable>       
                 )}
 
@@ -82,7 +82,7 @@ export default function PlayersConfig({navigation}) {
 
                 {players.length >= 2 && (
                     <Pressable style={styles.button} onPress={handleStartPress}>
-                        <Text style={styles.buttonText}>Comenzar juego</Text>
+                        <Text style={styles.buttonText}>{t('home.startGame')}</Text>
                     </Pressable>
                 )}
             </View>

@@ -26,6 +26,59 @@ With mobilepoly, you can:
 1. Each player must have an NFC card to use as their virtual debit card
 3. Connect to the app using the NFC card and start playing!
 
+## Project Structure
+```
+mobilepoly/
+├── assets/              # App assets (images, sounds, etc.)
+├── components/          # Reusable React components
+│   ├── Animation.js     # Animation components
+│   ├── BottomPopUp.js   # Bottom popup modal
+│   ├── PlayerAdder.js   # Player creation component
+│   ├── PlayerSelector.js # Player selection modal
+│   └── TransactionPopUp.js # Transaction feedback modal
+├── screens/             # App screens/pages
+│   ├── Home.js         # Home screen
+│   ├── PlayersConfig.js # Player configuration screen
+│   ├── BankMenu.js     # Banking operations screen
+│   └── Balance.js      # Balance checking screen
+├── src/
+│   └── translations/   # i18n translations (English/Spanish)
+├── App.js              # Main app component
+└── package.json        # Project dependencies
+```
+
+## Installation and Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/igorriti/mobilepoly.git
+cd mobilepoly
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Install EAS CLI:
+```bash
+npm install -g eas-cli
+```
+
+4. Login to your Expo account:
+```bash
+eas login
+```
+
+5. Create a development build:
+```bash
+eas build --profile development --platform android
+```
+
+6. Once the build is complete, install it on your device and start playing!
+
+Note: Make sure you have an NFC-enabled device and NFC cards before running the app.
+
 ## Acknowledgments
 Thanks to the Monopoly community for inspiring us to create mobilepoly.
 

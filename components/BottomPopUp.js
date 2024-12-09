@@ -1,7 +1,9 @@
 import { View, Text, Modal, StyleSheet,Animated,Easing } from 'react-native'
 import React, {useState,useEffect} from 'react'
+import { useTranslation } from 'react-i18next';
 
 export default function BottomPopUp({show=false,setShow}) {
+    const { t } = useTranslation();
     const [dot1Opacity, setDot1Opacity] = useState(new Animated.Value(0));
     const [dot2Opacity, setDot2Opacity] = useState(new Animated.Value(0));
     const [dot3Opacity, setDot3Opacity] = useState(new Animated.Value(0));
@@ -72,7 +74,7 @@ export default function BottomPopUp({show=false,setShow}) {
                 <View style={styles.content}>
                     <View style={styles.innerTitle}>
                       <Text style={styles.title}>
-                        Escaneando
+                        {t('nfc.scanning')}
                       </Text>
                       <Animated.Text style={[styles.title, { opacity: dot1Opacity }]}>
                         .
@@ -85,7 +87,7 @@ export default function BottomPopUp({show=false,setShow}) {
                       </Animated.Text>
                     </View>
                     
-                    <Text style={styles.description}>Acerque la tarjeta NFC</Text>
+                    <Text style={styles.description}>{t('nfc.approachCard')}</Text>
                 </View>
             </View>
         </Modal>

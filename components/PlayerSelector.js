@@ -2,44 +2,40 @@ import React, { useEffect } from 'react'
 import { View, Text, Modal, StyleSheet, FlatList, Pressable } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NfcManager,{ NfcTech } from 'react-native-nfc-manager';
-
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export default function PlayerSelector({show,setShow,setPlayer,pay,players}) {
+    const { t } = useTranslation();
 
     return (
-        <Modal animationType='fade' transparent={true} visible={show} >
+        <Modal animationType='fade' transparent={true} visible={show}>
             <View style={styles.container}>
                 <View style={styles.modalBody}>
-                    <Text style={styles.title}> {pay? "Pagar a:" : "Depositar a:"}</Text>
+                    <Text style={styles.title}>{pay ? t('bank.payTo') : t('bank.depositTo')}</Text>
                     <Pressable style={styles.closeButton} onPress={() => setShow(false)}>
                         <AntDesign name="close" size={24} color="black" />
                     </Pressable>
                     
                     <FlatList
                         style={styles.flatlist}
-                        data={[{ name: 'Banco', nfcData: '1' },...players]}
+                        data={[{ name: t('common.bank'), nfcData: '1' },...players]}
                         renderItem={({ item }) => (
-                            
-                            item.name === 'Banco' ?
+                            item.name === t('common.bank') ?
                                 pay &&
-                                    <Pressable style={styles.flatListItem} onPress={() => {setPlayer(item); setShow(false) }}>
+                                    <Pressable style={styles.flatListItem} onPress={() => {setPlayer(item); setShow(false)}}>
                                         <FontAwesome name="bank" size={24} color="black" style={{marginRight: 10}} />
-                                        <Text style={styles.flatListItemText}>Banco</Text>
+                                        <Text style={styles.flatListItemText}>{t('common.bank')}</Text>
                                     </Pressable>                                    
-                           :
-                                    <Pressable style={styles.flatListItem} onPress={() => {setPlayer(item); setShow(false) }}>
-                                        <FontAwesome name="user" size={24} color="black"  style={{marginRight: 10}}/>
-                                        <Text style={styles.flatListItemText}>{item.name}</Text>
-                                    </Pressable>                                    
-                            
-            
-
+                            :
+                                <Pressable style={styles.flatListItem} onPress={() => {setPlayer(item); setShow(false)}}>
+                                    <FontAwesome name="user" size={24} color="black" style={{marginRight: 10}}/>
+                                    <Text style={styles.flatListItemText}>{item.name}</Text>
+                                </Pressable>                                    
                         )}
                     />
                 </View>
-
             </View>
         </Modal>
     )

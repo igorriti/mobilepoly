@@ -1,114 +1,74 @@
 import { Text, View, StyleSheet, Pressable, Image, BackHandler} from 'react-native'
 import React, { useEffect, useState }  from 'react'
 import logo from '../assets/logo.png';
-
 import Animation from '../components/Animation';
-
 import { Audio} from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 export default function Home({navigation})  {
+    const { t } = useTranslation();
     const [gameExist, setGameExist] = useState(false);
-    const [sound,setSound] = useState(null);
-    const handlePress = async () => {
-        const {sound} = await Audio.Sound.createAsync(require('../assets/sounds/cash-register.mp3'));
-        await sound.setVolumeAsync(0.03);
 
-        await sound.playAsync();
-    }
+    const handlePress = async () => {
+        try {
+            const sound = new Audio.Sound();
+            await sound.loadAsync(require('../assets/sounds/cash-register.mp3'));
+            await sound.setVolumeAsync(0.03);
+            await sound.playAsync();
+            // Unload after playing
+            sound.setOnPlaybackStatusUpdate(async (status) => {
+                if (status.didJustFinish) {
+                    await sound.unloadAsync();
+                }
+            });
+        } catch (error) {
+            console.log('Error playing sound:', error);
+        }
+    };
 
     useEffect(() => {
-        async function playSound() {
-            const sound = new Audio.Sound();
-            try{
-                await sound.loadAsync(require('../assets/sounds/bg.mp3'));
-                await sound.setVolumeAsync(0.01);
-                await sound.playAsync({ isLooping: true });
-            }
-            catch(error){
-                console.error(error);
-            }
-        }
-        playSound();
-
-        //Search for a game in AsyncStorage 
+        // Check for existing game
         AsyncStorage.getItem('game').then((value) => {
             if(value !== null){
                 setGameExist(true);
             }
-        })
-    },[]);
+        });
+    }, []);
 
-    useEffect(() => {
-        return sound
-        ? () => {
-            console.log('Unloading Sound');
-            sound.unloadAsync();
-          }
-        : undefined;
-    }, [sound]);
     return (
         <>
             <Animation />
             <View style={styles.container}>
+                <LanguageSwitcher />
                 <Image
                    source={logo}
                    style={styles.logo} 
-                >
-
-                </Image>
-                {/* {
-                    gameExist&&
-                    <Pressable
-                    onPress={() => {
-                        handlePress()
-                        navigation.navigate('BankMenu')
-                        // sound.stopAsync();
-                    }}
-                    style={({pressed})=> [styles.pressable,{backgroundColor: pressed? "#E10000" : "#C70000"}]}
-                    >
-                        <Text style={styles.pressableText}>Reanudar juego</Text>
-                    </Pressable>      
-                } */}
+                />
                 <Pressable
                     onPress={() => {
                         handlePress()
                         navigation.navigate('PlayersConfig')
-                        // sound.stopAsync();
                     }}
-
-                
                     style={({pressed})=> [styles.pressable,{backgroundColor: pressed? "#E10000" : "#C70000"}]}
                 >
-                    <Text style={styles.pressableText}>Iniciar juego</Text>
+                    <Text style={styles.pressableText}>{t('home.startGame')}</Text>
                 </Pressable>
                 
-                {/* <Pressable
-                    onPress={() => {
-                    // Handle press event
-                    }}
-
-                    style={({pressed})=> [styles.pressable,{backgroundColor: pressed? "#E10000" : "#C70000"}]}
-                >
-                    <Text style={styles.pressableText}>Configuracion</Text>
-                </Pressable> */}
                 <Pressable
                     onPress={() => {
                         BackHandler.exitApp();
                     }}
-
-                    
                     style={({pressed})=> [styles.pressable,{backgroundColor: pressed? "#E10000" : "#C70000"}]}
                 >
-                    <Text style={styles.pressableText}>Salir</Text>
+                    <Text style={styles.pressableText}>{t('common.exit')}</Text>
                 </Pressable>
 
-                <Text style={styles.footer}>Hecho con ❤️ por Nacho Gorriti</Text>
+                <Text style={styles.footer}>{t('home.madeWith')}</Text>
             </View>
         </>
-
     )
-  
 }
 
 const styles = StyleSheet.create({
