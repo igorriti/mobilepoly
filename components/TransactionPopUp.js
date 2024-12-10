@@ -6,6 +6,9 @@ import { useTranslation } from 'react-i18next';
 export default function PlayerSelector({show=false,setShow,bankruptcy,name,value,pay,error}) {
     const { t } = useTranslation();
 
+    useEffect(() => {
+        console.log(name,value,error,pay);
+    },[name,value,error,pay]);
     return (
         <Modal animationType='fade' transparent={true} visible={show}>
             <View style={styles.container}>

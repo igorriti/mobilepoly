@@ -32,6 +32,7 @@ export default {
     nfcDuplicate: 'This NFC card is already in use by another player!',
     nfcNotSupported: 'This device does not support NFC',
     nfcError: 'Error scanning NFC card. Please try again.',
+    scanAgain: 'Credit card detected! Please scan again to register it.',
   },
   bank: {
     currentBalance: 'Current Balance',
@@ -45,10 +46,14 @@ export default {
     checkBalance: 'Want to check your balance?',
     payTo: 'Pay to:',
     depositTo: 'Deposit to:',
+    scanAgain: 'Credit card detected! Please scan again to process payment.',
+    paymentError: 'Payment Error',
+    selfPaymentError: 'You cannot pay to yourself!',
   },
   nfc: {
     scanning: 'Scanning',
     approachCard: 'Approach NFC card',
+    scanAgain: 'Credit card detected! Please scan again to check balance.',
   },
   transaction: {
     paymentError: 'Payment Error',

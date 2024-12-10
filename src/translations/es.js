@@ -32,6 +32,7 @@ export default {
     nfcDuplicate: '¡Esta tarjeta NFC ya está en uso por otro jugador!',
     nfcNotSupported: 'Este dispositivo no soporta NFC',
     nfcError: 'Error al escanear la tarjeta NFC. Por favor, intente nuevamente.',
+    scanAgain: '¡Tarjeta de crédito detectada! Por favor, escanee nuevamente para registrarla.',
   },
   bank: {
     currentBalance: 'Saldo Actual',
@@ -45,10 +46,14 @@ export default {
     checkBalance: '¿No sabe cuánta plata le queda?',
     payTo: 'Pagar a:',
     depositTo: 'Depositar a:',
+    scanAgain: '¡Tarjeta de crédito detectada! Por favor, escanee nuevamente para procesar el pago.',
+    paymentError: 'Error de Pago',
+    selfPaymentError: '¡No puedes pagarte a ti mismo!',
   },
   nfc: {
     scanning: 'Escaneando',
     approachCard: 'Acerque la tarjeta NFC',
+    scanAgain: '¡Tarjeta de crédito detectada! Por favor, escanee nuevamente para consultar el saldo.',
   },
   transaction: {
     paymentError: 'Error en el pago',

@@ -1,27 +1,26 @@
 import { View, Image, Text, StyleSheet, Animated, Pressable } from 'react-native';
-import React,{useEffect, useState} from 'react'
-import NfcManager,{ NfcTech, NfcEvents } from 'react-native-nfc-manager';
+import React, { useEffect, useState } from 'react';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons'; 
-import keypad from "../assets/Keypad.png"
-import webcam from "../assets/webcam.png"
+import keypad from "../assets/keypad.png";
+import webcam from "../assets/webcam.png";
 import { useTranslation } from 'react-i18next';
+import { initNfc, startNfcScan, cleanUpNfc } from '../utils/nfcUtils';
 
-export default function Balance({navigation,route}) {
+export default function Balance({navigation, route}) {
   const { t } = useTranslation();
   const [animationValue] = useState(new Animated.Value(0));
   const [animationValue2] = useState(new Animated.Value(1));
   const [name, setName] = useState('');
   const [money, setMoney] = useState(0);
 
-  const animation  =   Animated.loop(
+  const animation = Animated.loop(
     Animated.parallel([
       Animated.sequence([
         Animated.timing(animationValue, {
           toValue: 0,
           duration: 200,
           useNativeDriver: true,
-          
         }),
         Animated.timing(animationValue, {
           toValue: 1,
@@ -32,16 +31,13 @@ export default function Balance({navigation,route}) {
           toValue: 0,
           duration: 200,
           useNativeDriver: true,
-          
         }),
-        
       ]),
       Animated.sequence([
         Animated.timing(animationValue2, {
           toValue: 1,
           duration: 1000,
           useNativeDriver: true,
-          
         }),
         Animated.timing(animationValue2, {
           toValue: 0,
@@ -52,53 +48,68 @@ export default function Balance({navigation,route}) {
           toValue: 1,
           duration: 1000,
           useNativeDriver: true,
-          
         }),
-        
       ]),
     ])
-  )
+  );
 
-  const playsound = async () => {
-    const {sound} = await Audio.Sound.createAsync(require('../assets/sounds/bank.mp3'));
-  
-    await sound.playAsync();
-  }
+  const playSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(require('../assets/sounds/bank.mp3'));
+      await sound.playAsync();
+    } catch (error) {
+      console.warn('Error playing sound:', error);
+    }
+  };
+
+  const startNfcListener = async () => {
+    try {
+      const isSupported = await initNfc();
+      if (!isSupported) {
+        console.warn('NFC not supported');
+        return;
+      }
+
+      const onTagFound = (tag) => {
+        const player = route.params.paramKey.find(player => player.nfcData === tag.id);
+        if (player) {
+          playSound();
+          setName(player.name);
+          setMoney(player.money);
+          setTimeout(() => {
+            setName('');
+            setMoney(0);
+            animation.start();
+            startNfcListener(); // Restart listening after timeout
+          }, 6000);
+        }
+      };
+
+      const onIsoDepDetected = () => {
+        // For ISO-DEP cards, we'll keep listening for the second scan
+        startNfcListener();
+      };
+
+      await startNfcScan(onTagFound, onIsoDepDetected, 'balance');
+    } catch (error) {
+      console.warn('Error setting up NFC:', error);
+    }
+  };
+
   useEffect(() => {
     animation.start();
-    NfcManager.start();
-    NfcManager.registerTagEvent();
+    startNfcListener();
 
     return () => {
-      NfcManager.unregisterTagEvent().catch(() => 0);
-    
+      cleanUpNfc();
     };
   }, []);
 
-  useEffect(() => {
-    NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
-        playsound();
-        const player = route.params.paramKey.find(player => player.nfcData === tag.id)
-        if(player){
-            setName(player["name"])
-            setMoney(player["money"])
-            setTimeout(() => {
-            setName('')
-            setMoney(0)
-            animation.start();
-            }, 6000);
-        }
-      })
-
-    ;
-
-  }, [NfcManager])
-  
   return (
     <View style={styles.container}>
       <Pressable style={styles.backButton} onPress={() => {navigation.navigate("BankMenu")}}>
         <Ionicons name="md-chevron-back-outline" size={24} color="white" />
-        <Text style={{color:"white", fontSize : 20}}>{t('common.bank')}</Text>
+        <Text style={{color:"white", fontSize: 20}}>{t('common.back')}</Text>
       </Pressable>
       <View style={styles.cameraContainer}>
         <Image style={{width: 30, height: 30}} source={webcam} />
@@ -108,13 +119,11 @@ export default function Balance({navigation,route}) {
           <View style={styles.displayTop}>
             {
               name === '' ?
-                <Animated.Text style={[styles.displayText, {opacity : animationValue2}]}>
-                  {t('bank.currentBalance')}...
+                <Animated.Text style={[styles.displayText, {opacity: animationValue2}]}>
+                  {t('nfc.approachCard')}
                 </Animated.Text>
               :
-                <Text style={styles.displayText}>
-                  {name} - {t('bank.currentBalance')}
-                </Text>
+                <Text style={styles.displayText}>{name} - {t('bank.currentBalance')}</Text>
             }
           </View>
           <View style={styles.displayBottom}>
@@ -130,7 +139,7 @@ export default function Balance({navigation,route}) {
         </View>
         <View style={styles.cardScanner}>
           <View style={styles.cardBg} />
-          <Animated.View style={[styles.light, {opacity : animationValue}]} />
+          <Animated.View style={[styles.light, {opacity: animationValue}]} />
           <View style={{width: '80%', height: '25%', backgroundColor: 'black', opacity: 0.9, borderRadius: 5}} />
         </View>
       </View>
@@ -140,7 +149,7 @@ export default function Balance({navigation,route}) {
         </View>
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

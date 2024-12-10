@@ -1,63 +1,82 @@
 import { View, Text, TextInput, Modal, Pressable, StyleSheet } from 'react-native'
-import React, {useState} from 'react'
-import NfcManager,{ NfcTech } from 'react-native-nfc-manager';
+import React, { useState, useEffect } from 'react'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import BottomPopUp from '../components/BottomPopUp';
 import { useTranslation } from 'react-i18next';
+import { initNfc, startNfcScan, cleanUpNfc } from '../utils/nfcUtils';
 
-export default function PlayerAdder({show, players,setPlayers, editing, index,nfcData,setNfcData, playerName, setPlayerName, reset }) {
+export default function PlayerAdder({show, players, setPlayers, editing, index, nfcData, setNfcData, playerName, setPlayerName, reset }) {
     const { t } = useTranslation();
     const [scanning, setScanning] = useState(false);
     const [nfcError, setNfcError] = useState('');
+    const [isIsoDepMessage, setIsIsoDepMessage] = useState(false);
+
+    useEffect(() => {
+        return () => {
+            cleanUpNfc();
+        };
+    }, []);
 
     const handleScanNfc = async () => {
-        setNfcData('')
+        setNfcData('');
         setNfcError('');
+        setIsIsoDepMessage(false);
+        setScanning(true);
+        
         try {
-            if (!scanning){
-                const isNfcSupported = await NfcManager.isSupported();
-                if (isNfcSupported) {
-                    await NfcManager.start();
-                    setScanning(true);
-
-                    await NfcManager.requestTechnology(NfcTech.Ndef);
-                    const tag = await NfcManager.getTag();
-
-                    // Check if this NFC card is already registered
-                    const isDuplicate = players.some(player => 
-                        player.nfcData === tag.id && (!editing || player.nfcData !== players[index]?.nfcData)
-                    );
-
-                    if (isDuplicate) {
-                        setNfcError(t('players.nfcDuplicate'));
-                    } else {
-                        setNfcData(tag.id);
-                    }
-
-                    await NfcManager.cancelTechnologyRequest();
-                    setScanning(false);
-                } else {
-                    console.warn('This device does not support NFC');
-                    setNfcError(t('players.nfcNotSupported'));
-                }
+            const isNfcSupported = await initNfc();
+            if (!isNfcSupported) {
+                setNfcError(t('players.nfcNotSupported'));
+                setScanning(false);
+                return;
             }
+            
+            const onTagFound = (tag) => {
+                console.log('Tag found:', tag);
+                if (!tag || !tag.id) {
+                    setNfcError(t('players.nfcError'));
+                    setScanning(false);
+                    return;
+                }
+
+                // Check if this NFC card is already registered
+                const isDuplicate = players.some(player => 
+                    player.nfcData === tag.id && (!editing || player.nfcData !== players[index]?.nfcData)
+                );
+
+                if (isDuplicate) {
+                    setNfcError(t('players.nfcDuplicate'));
+                } else {
+                    setNfcData(tag.id);
+                }
+                setScanning(false);
+                setIsIsoDepMessage(false);
+            };
+
+            const onIsoDepDetected = () => {
+                console.log('ISO-DEP card detected');
+                setIsIsoDepMessage(true);
+            };
+
+            await startNfcScan(onTagFound, onIsoDepDetected, 'players');
         } catch (error) {
-            console.warn(error);
+            console.warn('Error scanning NFC:', error);
             setNfcError(t('players.nfcError'));
             setScanning(false);
+            setIsIsoDepMessage(false);
         }
-    }
+    };
 
     const handleDelete = () => {
         const newPlayers = [...players];
-        newPlayers.splice(index,1);
+        newPlayers.splice(index, 1);
         setPlayers(newPlayers);
-        reset()
-    }
+        reset();
+    };
     
     const handleOk = () => {
-        if (playerName.length >= 1 && nfcData !== '' && !nfcError){
-            if (editing){
+        if (playerName.length >= 1 && nfcData !== '' && !nfcError) {
+            if (editing) {
                 const newPlayers = [...players];
                 newPlayers[index] = {name: playerName, nfcData: nfcData, money: 1500};
                 setPlayers(newPlayers);
@@ -67,6 +86,11 @@ export default function PlayerAdder({show, players,setPlayers, editing, index,nf
                 reset();
             }
         }
+    };
+
+    const handleModalClose = () => {
+        setScanning(false);
+        setIsIsoDepMessage(false);
     };
     
     return (
@@ -113,10 +137,11 @@ export default function PlayerAdder({show, players,setPlayers, editing, index,nf
             </View>
             <BottomPopUp 
                 show={scanning}
-                setShow={setScanning}
+                setShow={handleModalClose}
+                isIsoDepMessage={isIsoDepMessage}
             />
         </Modal>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
